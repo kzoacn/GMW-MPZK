@@ -10,7 +10,7 @@ using namespace std;
 using emp::RecIO;
 using emp::RepIO;
 using emp::Hash;
-  
+/*  
 bool verify(){
 
     FILE *fp[n+1];
@@ -88,7 +88,7 @@ bool verify(){
             
             bgw2->prng=views[x].prng;
             bgw2->prng.rewind();
-            vector<GF>inputs=views[x].inputs;
+            vector<Bool>inputs=views[x].inputs;
             auto res=compute(x,inputs,bgw2);
             for(auto r: res)
                 r.print();
@@ -118,17 +118,17 @@ bool verify(){
 
     return true;
 }
-
+*/
 
 int main(int argc,char **argv){
 
     
-    if(verify()){
+   /* if(verify()){
         puts("Yes");
     }else{
         puts("No");
     }
-
+*/
     
 
     return 0;

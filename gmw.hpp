@@ -4,12 +4,15 @@
 #include "mpio.hpp"
 #include <cassert>
 #include "constant.h"
-
+#include "emp-tool/utils/prg.h"
+using emp::PRG;
 
 class Bool{
 public:
     bool val;
-    
+    Bool(bool b=false):val(b){
+
+    }
 };
 
 
@@ -30,7 +33,7 @@ class GMW : public MPC{
 public:
     int party;
     MPIO<IO,n> *io;
-    //PRNG prng;
+    PRG prng;
   
     int xor_cnt;
     int and_cnt;
@@ -62,11 +65,11 @@ public:
                 
                 for(int i=1;i<=n;i++){
 
-                    r=rand()%2; //TODO
+                    int r=rand()%2; //TODO
                     
                     
                     if(i!=party){
-                        io->send_GF(i,r);    
+                        io->send_Bool(i,r);    
                         sum^=r;
                     }
                 }
@@ -74,7 +77,7 @@ public:
                 c.val=sum^a;
 
             }else{
-                io->recv_GF(p,c.val);
+                io->recv_Bool(p,c.val);
             }
         }    
         return c;    
@@ -105,10 +108,10 @@ public:
         for(int i=1;i<=n;i++)
         for(int j=1;j<=n;j++)if(i!=j){
             if(i==party){
-                io->send_GF(j,a.val);
+                io->send_Bool(j,a.val);
             }
             if(j==party){
-                io->recv_GF(i,point[i]);
+                io->recv_Bool(i,point[i]);
             }
         } 
         bool ret=0;
@@ -122,16 +125,14 @@ public:
 
 
 
-
-
 using emp::Hash;
 template<int n>
 struct View{
-    vector<GF> inputs;
-    PRNG prng;
+    vector<Bool> inputs;
+    PRG prng;
     vector<vector<char> >trans;
     void from_bin(unsigned char *in){
-        int size=0;
+        /*int size=0;
         int sz;
         memcpy(&sz,in,4);
         size+=4;
@@ -156,10 +157,10 @@ struct View{
             
             memcpy(trans[i].data(),in+size,sz);
             size+=sz;
-        }
+        }*/
     }
     void to_bin(unsigned char *out){
-        int size=0;
+        /*int size=0;
         int sz=inputs.size();
         memcpy(out,&sz,4);
         size+=4;
@@ -179,10 +180,10 @@ struct View{
             size+=4;
             memcpy(out+size,trans[i].data(),sz);
             size+=sz;
-        }
+        }*/
     }
     int size(){
-        int size=0;
+        /*int size=0;
         size+=4;
         for(int i=0;i<inputs.size();i++){
             int sz=inputs[i].size();
@@ -195,16 +196,16 @@ struct View{
             size+=4;
             size+=sz;
         }
-        return size;
+        return size;*/
     }
     void digest(char *out){
-        Hash view_hash;
+        /*Hash view_hash;
         unsigned char *tmp=new unsigned char[size()];
         memset(tmp,0,size());
         to_bin(tmp);
         view_hash.put(tmp,size());
         delete []tmp;
-        view_hash.digest(out);
+        view_hash.digest(out);*/
     }
 };
 
@@ -220,6 +221,5 @@ bool check_perm(int *perm){
             return false;
     return true;
 }
-
-
+ 
 #endif

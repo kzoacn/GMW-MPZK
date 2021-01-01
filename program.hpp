@@ -1,22 +1,21 @@
 #ifndef PROGRAM_HPP_
 #define PROGRAM_HPP_
 
-#include "bgw.hpp"
+#include "gmw.hpp"
 #include <iostream>
 #include <vector>
-#include "constant.h"
-#include "GF.hpp"
+#include "constant.h" 
 
 using namespace std;
 
 
-
+/*
 
 vector<Int> adder(vector<Int> a,vector<Int> b,MPC *bgw){
     vector<Int>res;
     assert(a.size()==b.size());
     Int c;
-    bgw->set(c,GF(0),0);
+    bgw->set(c,Bool(0),0);
     for(int i=0;i<a.size();i++){
         Int p,q,r,t1,t2;
 
@@ -26,13 +25,7 @@ vector<Int> adder(vector<Int> a,vector<Int> b,MPC *bgw){
 
         bgw->oand(t1,t1,t2);
         bgw->oxor(c,c,t1);
-        /*bgw->oxor(p,a[i],b[i]);
-        bgw->oand(q,a[i],b[i]);
-
-        bgw->oxor(r,p,c);
-
-        bgw->oand(t1,p,c);
-        bgw->oxor(c,q,t1);*/
+ 
 
         res.push_back(r);
     }
@@ -43,12 +36,12 @@ vector<Int> neg(vector<Int> a,MPC *bgw){
     vector<Int>c,one;
     c.resize(a.size());
     Int zero;
-    bgw->set(zero,GF(0),0);
+    bgw->set(zero,Bool(0),0);
     for(int i=0;i<a.size();i++){
         bgw->onot(c[i],a[i]);
         one.push_back(zero);    
     }
-    bgw->set(one[0],GF(1),0);
+    bgw->set(one[0],Bool(1),0);
     c=adder(c,one,bgw);
     return c;
 }
@@ -64,15 +57,15 @@ Int less_than(vector<Int> a,vector<Int> b,MPC *bgw){
     auto res=suber(a,b,bgw);
     return res[res.size()-1];
 }
+*/
 
+vector<Bool> compute(int party,vector<Bool> inputs,MPC *gmw){
 
-vector<GF> compute(int party,vector<GF> inputs,MPC *bgw){
-
-
+    vector<Bool> res;
     
 
-    Int sum;
-    bgw->set(sum,GF(0),0);
+ /*   Int sum;
+    bgw->set(sum,Bool(0),0);
     Int tmp;
     vector<Int>bits[n+1];
     
@@ -86,7 +79,7 @@ vector<GF> compute(int party,vector<GF> inputs,MPC *bgw){
         s=adder(s,bits[i],bgw);
     }
 
-    vector<GF>res;
+    vector<Bool>res;
 //    for(int i=0;i<s.size();i++){
 //        res.push_back(bgw->reveal(s[i]));
 //    }
@@ -96,7 +89,7 @@ vector<GF> compute(int party,vector<GF> inputs,MPC *bgw){
     unsigned long long t=40;
     for(int i=0;i<(int)s.size();i++){
         Int b;
-        bgw->set(b,GF(t>>i&1),0);
+        bgw->set(b,Bool(t>>i&1),0);
         th.push_back(b);
     }
 
@@ -104,7 +97,7 @@ vector<GF> compute(int party,vector<GF> inputs,MPC *bgw){
     bit=less_than(th,s,bgw);
     res.push_back(bgw->reveal(bit));
     
-
+*/
     return res;
 }
 

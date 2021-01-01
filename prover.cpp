@@ -38,24 +38,24 @@ int main(int argc,char **argv){
     for(int it=0;it<REP;it++){
         cerr<<"proving "<<it<<endl;
         MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port,true);
-        BGW<RecIO,n,n/2> *bgw=new BGW<RecIO,n,n/2>(io,party);
-        vector<GF>inputs;
+        GMW<RecIO,n> *gmw=new GMW<RecIO,n>(io,party);
+        vector<Bool>inputs;
         for(int i=0;i<32;i++){
             unsigned long long x=party;
-            inputs.push_back(GF(x>>i&1));
+            inputs.push_back(Bool(x>>i&1));
         }
-        auto res=compute(party,inputs,bgw);
+        auto res=compute(party,inputs,gmw);
         if(party==1){
             for(auto r:res)
-                r.print();
+                cout<<r.val<<endl;
         }
 
         views[it].inputs=inputs;
-        views[it].prng=bgw->prng;
+        views[it].prng=gmw->prng;
         views[it].trans.resize(n+1);
         
         for(int i=1;i<=n;i++)if(i!=party){
-            auto &vec=bgw->io->recv_io[i]->recv_rec; 
+            auto &vec=gmw->io->recv_io[i]->recv_rec; 
             views[it].trans[i]=vec;
         }
 
@@ -69,9 +69,9 @@ int main(int argc,char **argv){
 
         
         delete io;
-        delete bgw;
+        delete gmw;
     }
-    view_n.resize(n+1);
+/*    view_n.resize(n+1);
     for(int i=1;i<=n;i++)
         view_n[i].resize(Hash::DIGEST_SIZE);
     view_all.digest(view_n[party].data());
@@ -128,7 +128,7 @@ int main(int argc,char **argv){
         }
     }
     fclose(fp);
-
+*/
     //FS , random
 
 
