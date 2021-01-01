@@ -1,6 +1,6 @@
 #include "RecIO.hpp"
 #include "RepIO.hpp"
-#include "bgw.hpp"
+#include "gmw.hpp"
 #include <iostream>
 #include <vector>
 #include "constant.h"

@@ -4,6 +4,8 @@
 #include "mpio.hpp"
 #include <cassert>
 #include "constant.h"
+
+
 class Bool{
 public:
     bool val;
@@ -119,10 +121,13 @@ public:
 };
 
 
- 
+
+
+
+using emp::Hash;
 template<int n>
 struct View{
-    vector<bool> inputs;
+    vector<GF> inputs;
     PRNG prng;
     vector<vector<char> >trans;
     void from_bin(unsigned char *in){

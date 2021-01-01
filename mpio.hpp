@@ -1,7 +1,8 @@
 #ifndef MP_IO_HPP
 #define MP_IO_HPP
 
-#include "io.hpp" 
+#include "RecIO.hpp"
+#include "GF.hpp"
 #include "constant.h"
 #include <vector>
 #include <string>
@@ -42,11 +43,11 @@ public:
         recv_io[i]->recv_data(data,len);
     }
     
-        void send_GF(int i,bool x){
+        void send_GF(int i,GF x){
             send_io[i]->send_data(&x,sizeof(x));
             send_io[i]->flush();
         }
-        void recv_GF(int i,bool &x){
+        void recv_GF(int i,GF &x){
             recv_io[i]->recv_data(&x,sizeof(x));
         }
     

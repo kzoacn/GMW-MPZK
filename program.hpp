@@ -1,10 +1,11 @@
 #ifndef PROGRAM_HPP_
 #define PROGRAM_HPP_
 
-#include "gmw.hpp"
+#include "bgw.hpp"
 #include <iostream>
 #include <vector>
-#include "constant.h" 
+#include "constant.h"
+#include "GF.hpp"
 
 using namespace std;
 

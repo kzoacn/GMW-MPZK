@@ -63,85 +63,145 @@ private:
 using std::string;
 
 
-class NetIO: public IOChannel<NetIO> { 
-public:
+class NetIO: public IOChannel<NetIO> { public:
 	bool is_server;
-	sockaddr_in addr;
+	int mysocket;
+	int consocket;
+	FILE * stream;
+	char * buffer;
+	bool has_sent;
+	string addr,client_ip;
 	int port;
-	uint64_t counter = 0;
-	char * buffer = NULL;
-	int buffer_ptr = 0;
-	int buffer_cap = NETWORK_BUFFER_SIZE;
-	bool has_send = false; 
-	int sock;
-	int client_sock;
-	sockaddr client_addr;
-	NetIO(const char * address, int port, bool quiet = false) {
+	uint64_t counter;
+	struct sockaddr_in dest;
+	struct sockaddr_in serv;
 		
-		is_server=(address==NULL);
+	NetIO(const char * address, int port, int tmout=2000,bool quiet = false) {
+
+
+		mysocket = -1;	
+		consocket = -1;
+		stream = NULL;
+		buffer = NULL;
+		has_sent = false;
+		counter = 0;
+
+		timeval timeout;
+		timeout.tv_sec=0;
+		timeout.tv_usec=tmout*1000;
+
 		this->port = port;
-		sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		memset(&addr, 0, sizeof(addr));  
+		is_server = (address == NULL);
+		socklen_t socksize = sizeof(struct sockaddr_in);
+		if (address == NULL) {
+			memset(&serv, 0, sizeof(serv));
+			serv.sin_family = AF_INET;
+			serv.sin_addr.s_addr = htonl(INADDR_ANY); /* set our address to any interface */
+			serv.sin_port = htons(port);           /* set the server port number */    
+			mysocket = socket(AF_INET, SOCK_STREAM, 0);
+			int reuse = 1;
+			setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));
 
-		
-		addr.sin_family = AF_INET;  
-		addr.sin_addr.s_addr = inet_addr(is_server? "0.0.0.0" : address);
-		addr.sin_port = htons(port);	
-		bind(sock, (sockaddr*)&addr, sizeof(addr));
-		
-		if(is_server){
-			listen(sock,SOMAXCONN);
-			socklen_t addrlen;
-			client_sock=accept(sock,&client_addr,&addrlen);
-		}else{
-			if(connect(sock,(sockaddr*)&addr,sizeof(addr))<0)
-				puts("connect error");
-		} 
-	}
-	void sync() {
-		int tmp = 0;
-		if(is_server) {
-			send_data(&tmp, 1);
-			recv_data(&tmp, 1);
-		} else {
-			recv_data(&tmp, 1);
-			send_data(&tmp, 1);
-			flush();
+			if(tmout){
+				setsockopt(mysocket,SOL_SOCKET,SO_SNDTIMEO,&timeout,sizeof(timeout));
+				setsockopt(mysocket,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof(timeout));
+			}
+
+			if(bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {		
+				fprintf(stderr,"[!ERROR!] bind error!!!");
+				throw -1;
+			}
+			if(listen(mysocket, 30) < 0) {		
+				fprintf(stderr,"[!ERROR!] listen error!!!");
+				throw -1;
+			}
 		}
+		else {
+			addr = string(address);
+			 
+			memset(&dest, 0, sizeof(dest));
+			dest.sin_family = AF_INET;
+			dest.sin_addr.s_addr = inet_addr(address);
+			dest.sin_port = htons(port);
+
+
+			int cnt=tmout/10;
+			while(1) {
+				consocket = socket(AF_INET, SOCK_STREAM, 0);
+
+				if (connect(consocket, (struct sockaddr *)&dest, sizeof(struct sockaddr)) == 0) {
+			
+					break;
+				}
+				
+				close(consocket);
+				usleep(10000);
+				cnt--;
+				if(cnt<=0){
+					fprintf(stderr,"[!ERROR!] connect timeout!!!");
+					throw -1;
+				}
+			}
+			if(!quiet)
+				std::cout << "connected\n";
+		}
+
+		if(tmout){
+			setsockopt(consocket,SOL_SOCKET,SO_SNDTIMEO,&timeout,sizeof(timeout));
+			setsockopt(consocket,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof(timeout));
+		}
+		
 	}
 
-	~NetIO() {
-		flush();
-		delete[] buffer;
+	void accepting(bool quiet = true){
+		if(consocket>=0){
+			close(consocket);
+		}
+		socklen_t socksize = sizeof(struct sockaddr_in);
+		
+		if(!quiet)
+			std::cerr<<"accepting"<<std::endl;
+		while(1){
+			consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
+			if(consocket<0){
+				if(!quiet)
+					fprintf(stderr,"accept error");
+				throw -1;
+			}else{
+				break;
+			}
+		}
+			
+		
+		client_ip=inet_ntoa(dest.sin_addr);
+		if(!quiet)	
+			std::cout<<inet_ntoa(dest.sin_addr)<<" connect to server"<<std::endl;
 	}
 
-	void set_nodelay() { 
-	}
 
-	void set_delay() { 
-	}
+	~NetIO(){
+		fflush(stream);
+		if(mysocket>=0)
+			close(mysocket);
+		if(consocket>=0){
+			close(consocket);
+		}
 
-	void flush() { 
 	}
-
+ 
 	void send_data(const void * data, int len) {
-
-		if(is_server){
-			write(client_sock,data,len);
-		}else{
-			write(sock,data,len);
-		} 
+		write(consocket,data,len);
+		counter += len;
 	}
 
 	void recv_data(void  * data, int len) {
-		if(is_server){
-			read(client_sock,data,len);
-		}else{
-			read(sock,data,len);
-		} 
+		if(recv(consocket,data,len,MSG_WAITALL)!=len){
+			fprintf(stderr,"[!ERROR!] recv error!!!");
+			throw -1;
+		}
+		
 	}
 };
-
 
 
 #endif  //NETWORK_IO_CHANNEL
