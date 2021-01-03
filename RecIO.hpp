@@ -1,14 +1,13 @@
 #ifndef RECORD_IO_CHANNEL
 #define RECORD_IO_CHANNEL
 
+#include "constant.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
-#include <vector>
-#include "emp-tool/io/io_channel.h"
-#include "emp-tool/utils/hash.h"
+#include <vector> 
 using std::string;
 using std::vector; 
 
@@ -18,14 +17,10 @@ using std::vector;
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
-namespace emp {
-/** @addtogroup IO
-  @{
- */
+ 
  
 
-class RecIO: public IOChannel<RecIO> { public:
+class RecIO { public:
 	bool is_server;
 	int mysocket = -1;
 	int consocket = -1;
@@ -128,15 +123,13 @@ class RecIO: public IOChannel<RecIO> { public:
 		fflush(stream);
 	}
 
-
-    Hash send_hash;
-    Hash recv_hash;
+ 
     
 	void send_data(const void * data, int len) {
         
 		for(int i=0;i<len;i++)
 			send_rec.push_back(((char*)data)[i]);
-        send_hash.put(data,len);
+        //send_hash.put(data,len);
 		
         counter += len;
 		int sent = 0;
@@ -166,11 +159,8 @@ class RecIO: public IOChannel<RecIO> { public:
 
 		for(int i=0;i<len;i++)
 			recv_rec.push_back(((char*)data)[i]);
-        recv_hash.put(data,len);
+        //recv_hash.put(data,len);
 	}
-};
-/**@}*/
-
-}
+}; 
  
 #endif  //NETWORK_IO_CHANNEL

@@ -5,6 +5,7 @@
 #include "constant.h"
 #include <vector>
 #include <string>
+#include "group.hpp"
 using namespace std;
 
 template<class IO,int n>
@@ -47,6 +48,22 @@ public:
     }
     void recv_Bool(int i,bool &b){
         recv_data(i,&b,sizeof(b));
+    }
+
+    void send_pt(int i,Point p){
+        int size=p.size();
+        unsigned char *buf=new unsigned char[size];
+        p.to_bin(buf,size);
+        send_data(i,buf,size);
+        delete[] buf;
+    }
+
+    void recv_pt(int i,Group *G,Point &p){
+        int size=p.size();
+        unsigned char *buf=new unsigned char[size];
+        recv_data(i,buf,size);
+        p.from_bin(G,buf,size);
+        delete[] buf;
     }
     
 };

@@ -6,10 +6,7 @@
 #include "constant.h"
 #include "program.hpp"
 
-using namespace std;
-using emp::RecIO;
-using emp::RepIO;
-using emp::Hash;
+using namespace std; 
 
 int party,port;
 
@@ -27,8 +24,9 @@ int main(int argc,char **argv){
     for(int i=0;i<=n+1;i++)
         ip.push_back(string("127.0.0.1"));
     
+    MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port,true);
     
-    Hash view_all;
+  /*  Hash view_all;
     vector<vector<char> >view_n;
 
     vector<vector<char> >views_hash;
@@ -38,6 +36,8 @@ int main(int argc,char **argv){
     for(int it=0;it<REP;it++){
         cerr<<"proving "<<it<<endl;
         MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port,true);
+        
+        
         GMW<RecIO,n> *gmw=new GMW<RecIO,n>(io,party);
         vector<Bool>inputs;
         for(int i=0;i<32;i++){
@@ -71,7 +71,7 @@ int main(int argc,char **argv){
         delete io;
         delete gmw;
     }
-/*    view_n.resize(n+1);
+    view_n.resize(n+1);
     for(int i=1;i<=n;i++)
         view_n[i].resize(Hash::DIGEST_SIZE);
     view_all.digest(view_n[party].data());

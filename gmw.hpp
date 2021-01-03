@@ -3,10 +3,9 @@
  
 #include "mpio.hpp"
 #include <cassert>
-#include "constant.h"
-#include "emp-tool/utils/prg.h"
-using emp::PRG;
-
+#include "constant.h"  
+#include "prg.hpp"
+#include "mpot.hpp"
 class Bool{
 public:
     bool val;
@@ -34,7 +33,9 @@ public:
     int party;
     MPIO<IO,n> *io;
     PRG prng;
-  
+
+    MPOT<IO,n> *ot;
+
     int xor_cnt;
     int and_cnt;
 
@@ -42,6 +43,7 @@ public:
         xor_cnt=and_cnt=0;
         this->io=io;
         this->party=party;
+        ot=new MPOT<IO,n>(io);
     }
 
     ~GMW(){
@@ -95,9 +97,26 @@ public:
     }
     void oand(Bool &c,const Bool &a,const Bool &b){
         and_cnt++;
-        //
+        
+        c.val=a.val&b.val;
 
+/*
+  r->   ------   <- b 
+       |  OT  |  
+ r+a->  ------   -> r+ab
 
+*/
+        for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++){
+            if(i==j)continue;
+            if(i==party){
+                
+            }
+            if(j==party){
+
+            }
+        }
+ 
     }
     
 
@@ -124,12 +143,11 @@ public:
 };
 
 
-
-using emp::Hash;
+ 
 template<int n>
 struct View{
     vector<Bool> inputs;
-    PRG prng;
+    //PRG prng;
     vector<vector<char> >trans;
     void from_bin(unsigned char *in){
         /*int size=0;

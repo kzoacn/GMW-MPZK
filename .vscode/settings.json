@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "random": "cpp"
+        "random": "cpp",
+        "cstring": "cpp",
+        "string": "cpp",
+        "iostream": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "tuple": "cpp"
     }
 }
