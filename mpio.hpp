@@ -34,7 +34,9 @@ public:
             delete recv_io[i];
         }
     }
+    void flush(){
 
+    }
     void send_data(int i,const void *data,int len){
         send_io[i]->send_data(data,len);
         send_io[i]->flush();
@@ -50,19 +52,19 @@ public:
         recv_data(i,&b,sizeof(b));
     }
 
-    void send_pt(int i,Point p){
-        int size=p.size();
-        unsigned char *buf=new unsigned char[size];
-        p.to_bin(buf,size);
-        send_data(i,buf,size);
+    void send_pt(int i,Point *p){
+        int size=p->size();
+        unsigned char *buf=new unsigned char[size+1];
+        p->to_bin(buf,size);
+        send_data(i,buf,size); 
         delete[] buf;
     }
 
-    void recv_pt(int i,Group *G,Point &p){
-        int size=p.size();
-        unsigned char *buf=new unsigned char[size];
-        recv_data(i,buf,size);
-        p.from_bin(G,buf,size);
+    void recv_pt(int i,Group *G,Point *p){
+        int size=G->get_generator().size();
+        unsigned char *buf=new unsigned char[size+1]; 
+        recv_data(i,buf,size); 
+        p->from_bin(G,buf,size);
         delete[] buf;
     }
     

@@ -59,10 +59,20 @@ Int less_than(vector<Int> a,vector<Int> b,MPC *bgw){
 }
 */
 
-vector<Bool> compute(int party,vector<Bool> inputs,MPC *gmw){
+vector<Bool> compute(int party,vector<bool> inputs,MPC *gmw){
 
     vector<Bool> res;
-    
+
+    res.resize(1);
+    Bool in[n+1];
+    for(int i=1;i<=n;i++){
+        gmw->set(in[i],inputs[0],i);
+    }   
+
+    gmw->set(res[0],true,0); 
+
+    for(int i=1;i<=n;i++)
+        gmw->oand(res[0],res[0],in[i]);
 
  /*   Int sum;
     bgw->set(sum,Bool(0),0);

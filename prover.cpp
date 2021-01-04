@@ -26,6 +26,14 @@ int main(int argc,char **argv){
     
     MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port,true);
     
+        
+        GMW<RecIO,n> *gmw=new GMW<RecIO,n>(io,party);
+        vector<bool>inputs;
+        inputs.push_back(party==2?false:true);
+        auto res=compute(party,inputs,gmw);
+
+        cout<<party<<" "<< gmw->reveal(res[0]) <<endl;
+
   /*  Hash view_all;
     vector<vector<char> >view_n;
 

@@ -6,7 +6,7 @@
 #include "group.hpp"
 #include "hash.hpp"
 
-template<class MIO,int n>
+template<class MIO>
 class MPOT{
 public:
 	MIO *io;
@@ -64,9 +64,8 @@ public:
 
 		for(int i = 0; i < length; ++i)
 			G->get_rand_bn(bb[i]);
-
-		io->recv_pt(id,G, &A);
-
+ 
+		io->recv_pt(id,G, &A); 
 		for(int i = 0; i < length; ++i) {
 			B[i] = G->mul_gen(bb[i]);
 			if (b[i]) 
@@ -74,7 +73,6 @@ public:
 			io->send_pt(id,&B[i]);
 		}
 		io->flush();
-
 
 		for(int i = 0; i < length; ++i)
 			As[i] = A.mul(bb[i]);

@@ -87,8 +87,8 @@ class RecIO { public:
 		buffer = new char[NETWORK_BUFFER_SIZE];
 		memset(buffer, 0, NETWORK_BUFFER_SIZE);
 		setvbuf(stream, buffer, _IOFBF, NETWORK_BUFFER_SIZE);
-		//if(!quiet)
-		//	std::cout << "connected\n";
+		if(!quiet)
+			std::cout << "connected\n";
 	}
 
 	void sync() {

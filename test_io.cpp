@@ -1,16 +1,17 @@
-#include "io.hpp"
+ 
 #include "mpio.hpp"
 #include<iostream>
 #include <vector>
+#include "RecIO.hpp"
 #include <string>
 using namespace std;
 
 
 int party,port;
 
-const int n=3;
 
 int main(int argc,char **argv){
+    const int n=3;
     if(argc!=3){
         puts("./test_io <party> <port>");
         return 0;
@@ -22,23 +23,9 @@ int main(int argc,char **argv){
     for(int i=0;i<=n;i++)
         ip.push_back(string("127.0.0.1"));
     
-
-    /*if(party==1){
-        NetIO *io=new NetIO("127.0.0.1",port);
-        io->send_data("hi2",3);
-    
-    }
-    if(party==2){
-        NetIO *io=new NetIO(NULL,port);
-        io->accepting();
-        char tmp[4];memset(tmp,0,sizeof(tmp));
-        io->recv_data(tmp,3);
-        puts(tmp);
-    }*/
-    
     
 
-    MPIO<NetIO,n> *io=new MPIO<NetIO,n>(party,ip,port);
+    MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port);
 
     
     if(party==1){

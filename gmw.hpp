@@ -34,7 +34,7 @@ public:
     MPIO<IO,n> *io;
     PRG prng;
 
-    MPOT<IO,n> *ot;
+    MPOT<MPIO<IO,n> > *ot;
 
     int xor_cnt;
     int and_cnt;
@@ -43,7 +43,7 @@ public:
         xor_cnt=and_cnt=0;
         this->io=io;
         this->party=party;
-        ot=new MPOT<IO,n>(io);
+        ot=new MPOT<MPIO<IO,n>>(io);
     }
 
     ~GMW(){
@@ -98,7 +98,7 @@ public:
     void oand(Bool &c,const Bool &a,const Bool &b){
         and_cnt++;
         
-        c.val=a.val&b.val;
+        Bool res=a.val&b.val;
 
 /*
   r->   ------   <- b 
@@ -110,13 +110,18 @@ public:
         for(int j=1;j<=n;j++){
             if(i==j)continue;
             if(i==party){
-                
+                bool r=rand()%2;
+                bool data0=r,data1=r^a.val;
+                ot->send(j,&data0,&data1,1);
+                res.val^=r;
             }
             if(j==party){
-
+                bool data,s=b.val;
+                ot->recv(i,&data,&s,1);
+                res.val^=data;
             }
         }
- 
+        c=res;
     }
     
 

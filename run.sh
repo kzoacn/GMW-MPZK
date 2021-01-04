@@ -9,9 +9,3 @@ sleep 0.1
 ./prover 5 12345 &
 sleep 0.1
 ./prover 6 12345 &
-sleep 0.1
-./prover 7 12345 &
-sleep 0.1
-./prover 8 12345 &
-sleep 0.1
-time ./prover 9 12345 &

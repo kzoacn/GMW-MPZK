@@ -6,6 +6,10 @@
         "iostream": "cpp",
         "array": "cpp",
         "string_view": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp"
     }
 }
