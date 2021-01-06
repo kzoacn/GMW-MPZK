@@ -1,5 +1,4 @@
-#include "RecIO.hpp"
-#include "RepIO.hpp"
+#include "RecIO.hpp" 
 #include "gmw.hpp"
 #include <iostream>
 #include <vector>
@@ -23,23 +22,35 @@ int main(int argc,char **argv){
     vector<string>ip;
     for(int i=0;i<=n+1;i++)
         ip.push_back(string("127.0.0.1"));
-    
+/*    
     MPIO<RecIO,n> *io=new MPIO<RecIO,n>(party,ip,port,true);
     
         
         GMW<RecIO,n> *gmw=new GMW<RecIO,n>(io,party);
-        vector<bool>inputs;
-        inputs.push_back(party==2?false:true);
+        vector<boolean>inputs;
+        //inputs.push_back(party==2?false:true);
+        for(int i=0;i<32;i++)
+            inputs.push_back(party>>i&1);
         auto res=compute(party,inputs,gmw);
 
-        cout<<party<<" "<< gmw->reveal(res[0]) <<endl;
 
-  /*  Hash view_all;
+    int out[32];
+    for(int i=0;i<32;i++)
+        out[i]=gmw->reveal(res[i]);
+    
+    if(party==1){
+        for(int i=0;i<32;i++)
+            cout<<out[i]%2;
+        cout<<endl;
+    }
+*/
+    
+ 
+    Hash view_all;
     vector<vector<char> >view_n;
 
     vector<vector<char> >views_hash;
     vector<View<n> >views;
-    views.resize(REP);
 
     for(int it=0;it<REP;it++){
         cerr<<"proving "<<it<<endl;
@@ -47,38 +58,35 @@ int main(int argc,char **argv){
         
         
         GMW<RecIO,n> *gmw=new GMW<RecIO,n>(io,party);
-        vector<Bool>inputs;
+        vector<boolean>inputs;
         for(int i=0;i<32;i++){
             unsigned long long x=party;
-            inputs.push_back(Bool(x>>i&1));
+            inputs.push_back(x>>i&1);
         }
+        gmw->view.inputs=inputs;
         auto res=compute(party,inputs,gmw);
+        vector<boolean>output;
+        for(int i=0;i<(int)res.size();i++)
+            output.push_back(gmw->reveal(res[i]));
         if(party==1){
-            for(auto r:res)
-                cout<<r.val<<endl;
+            for(int i=0;i<(int)output.size();i++)
+                cout<<output[i];
+            cout<<endl;
         }
 
-        views[it].inputs=inputs;
-        views[it].prng=gmw->prng;
-        views[it].trans.resize(n+1);
-        
-        for(int i=1;i<=n;i++)if(i!=party){
-            auto &vec=gmw->io->recv_io[i]->recv_rec; 
-            views[it].trans[i]=vec;
-        }
-
-
-
+        views.push_back(gmw->view);
         views_hash.push_back(vector<char>());
         views_hash[it].resize(Hash::DIGEST_SIZE);
         views[it].digest(views_hash[it].data());
         
         view_all.put(views_hash[it].data(),views_hash[it].size());
 
-        
         delete io;
         delete gmw;
     }
+ 
+
+
     view_n.resize(n+1);
     for(int i=1;i<=n;i++)
         view_n[i].resize(Hash::DIGEST_SIZE);
@@ -95,6 +103,8 @@ int main(int argc,char **argv){
             io->recv_data(i,view_n[i].data(),view_n[i].size());
         }
     }
+
+
     delete io;
 
     view_all.reset();
@@ -103,12 +113,13 @@ int main(int argc,char **argv){
     
     char r[Hash::DIGEST_SIZE];
     view_all.digest(r);
-    PRNG prng;
-    prng.reseed(r,sizeof(r));
+    PRG prg;
+    prg.reseed((unsigned char*)r);
     static int perm[n+1];
     for(int i=1;i<=n;i++)
         perm[i]=i;
 
+    
 
     string name="view_"+to_string(party)+".bin";
     FILE *fp=fopen(name.c_str(),"wb");
@@ -116,18 +127,21 @@ int main(int argc,char **argv){
         fwrite(views_hash[it].data(),1,views_hash[it].size(),fp);
     }
 
+
     for(int it=0;it<REP;it++){
         do{
             for(int i=2;i<=n;i++){
-                int x=prng.rand_range(i-1)+1;
+                int x=prg.rand()%(i-1)+1;//TODO
                 swap(perm[i],perm[x]);
             }
         }while(!check_perm(perm));
         
-        for(int i=1;i<=open_num;i++){
-            //if(party==1)   cerr<<"open "<<perm[i]<<endl;
+
+        for(int i=1;i<=open_num;i++){ 
             if(party==perm[i]){
+                 //printf("view size %d\n",(int)views[it].inputs.size());
                 int size=views[it].size();
+                //cout<<party<<" "<<size<<endl;
                 unsigned char *tmp=new unsigned char[size];
                 views[it].to_bin(tmp);
                 fwrite(&size,1,4,fp);
@@ -136,28 +150,7 @@ int main(int argc,char **argv){
         }
     }
     fclose(fp);
-*/
-    //FS , random
-
-
-
-
-/*
-    MPIO<RepIO,n> *io2=new MPIO<RepIO,n>(party,ip,port);
-    for(int i=1;i<=n;i++)if(i!=party){
-        io2->recv_io[i]->recv_rec=io->recv_io[i]->recv_rec;
-    }
-
-    BGW<RepIO,n,n/2> *bgw2=new BGW<RepIO,n,n/2>(io2,party,MOD);
-    
-    bgw2->prng=bgw->prng;
-    bgw2->prng.rewind();
-
-    res=compute(party,bgw2);
-    res.print();
-
-*/
-
+ 
 
     return 0;
 }

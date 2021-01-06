@@ -22,6 +22,13 @@ public:
 	}
 
 	void send(int id,const bool *data0, const bool *data1,int length) {
+
+
+		io->send_data(id,data0,length);
+		io->send_data(id,data1,length);
+
+		return ;
+
 		BigInt a;
 		Point A, AaInv;
 		unsigned char res[2][Hash::DIGEST_SIZE];
@@ -57,6 +64,18 @@ public:
 	}
 
 	void recv(int id,bool *data, bool *b,int length) {
+
+		bool tmp0[2],tmp1[2];
+		io->recv_data(id,tmp0,length);
+		io->recv_data(id,tmp1,length);
+		for(int i=0;i<length;i++)
+			if(b[i])
+				data[i]=tmp1[i];
+			else
+				data[i]=tmp0[i];
+
+		return ;
+
 		BigInt * bb = new BigInt[length];
 		Point * B = new Point[length],
 				* As = new Point[length],

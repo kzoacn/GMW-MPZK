@@ -1,5 +1,4 @@
-#include "RecIO.hpp"
-#include "RepIO.hpp"
+#include "RecIO.hpp" 
 #include "gmw.hpp"
 #include <iostream>
 #include <vector>
@@ -7,10 +6,8 @@
 #include "program.hpp"
 
 using namespace std;
-using emp::RecIO;
-using emp::RepIO;
-using emp::Hash;
-/*  
+
+ 
 bool verify(){
 
     FILE *fp[n+1];
@@ -45,19 +42,18 @@ bool verify(){
     
     char r[Hash::DIGEST_SIZE];
     view_all.digest(r);
-    PRNG prng;
-    prng.reseed(r,sizeof(r));
+    PRG prg;
+    prg.reseed((unsigned char*)r);
     static int perm[n+1];
     for(int i=1;i<=n;i++)
         perm[i]=i;
-
 
     
     for(int it=0;it<REP;it++){
         cerr<<"checking "<<it<<endl;
         do{
             for(int i=2;i<=n;i++){
-                int x=prng.rand_range(i-1)+1;
+                int x=prg.rand()%(i-1)+1;
                 swap(perm[i],perm[x]);
             }
         }while(!check_perm(perm));
@@ -65,7 +61,6 @@ bool verify(){
         vector<View<n> >views;
         views.resize(n+1);
         for(int i=1;i<=open_num;i++){
-            //cerr<<"reading "<<i<<endl;
             int x=perm[i];
             static unsigned char tmp[MAX_SIZE];
             int size;
@@ -74,43 +69,54 @@ bool verify(){
             views[x].from_bin(tmp);
         }
 
+
+        vector<vector<Channel> >all_channel;
+        all_channel.resize(n+1);
+        for(auto &vec:all_channel)
+            vec.resize(n+1);
+
         for(int i=1;i<=open_num;i++){
             int x=perm[i];
+            vector<Channel*>channels;
+            for(int j=0;j<=n;j++)
+                channels.push_back(&all_channel[x][j]);
 
-            vector<string>ip(n+1,"");
-            MPIO<RepIO,n> *io2=new MPIO<RepIO,n>(x,ip,0,true);
-
-            for(int j=1;j<=n;j++)if(j!=x){
-                io2->recv_io[j]->recv_rec=views[x].trans[j];
-            }
-
-            BGW<RepIO,n,n/2> *bgw2=new BGW<RepIO,n,n/2>(io2,x);
-            
-            bgw2->prng=views[x].prng;
-            bgw2->prng.rewind();
-            vector<Bool>inputs=views[x].inputs;
-            auto res=compute(x,inputs,bgw2);
-            for(auto r: res)
-                r.print();
-            cerr<<"add gate "<<bgw2->xor_cnt<<endl;
-            cerr<<"mul gate "<<bgw2->and_cnt<<endl;
-
-            for(int j=1;j<=open_num;j++)if(i!=j){
-                //cerr<<"open "<<perm[j]<<endl;
-                int y=perm[j];
-                char tmp1[Hash::DIGEST_SIZE],tmp2[Hash::DIGEST_SIZE];
-                io2->send_io[y]->send_hash.digest(tmp1);
-                Hash h;
-                h.put(views[y].trans[x].data(),views[y].trans[x].size());
-                h.digest(tmp2);
-                if(memcmp(tmp1,tmp2,Hash::DIGEST_SIZE)!=0){
-                    cerr<<"error ! consistent"<<endl;
-                    //return false;
-                }
-            }
-            delete io2;
-            delete bgw2;
+            ReGMW<n> *gmw=new ReGMW<n>(&views[x],channels,x);
+            auto res=compute(x,views[x].inputs,gmw);
+            vector<boolean>output;
+            for(int i=0;i<(int)res.size();i++)
+                output.push_back(gmw->reveal(res[i]));
+            delete gmw;
         }
+
+        vector<boolean>open;
+        open.resize(n+1);
+        for(int i=1;i<=open_num;i++)
+            open[perm[i]]=1;
+        
+        for(int i=1;i<=open_num;i++){
+            int x=perm[i];
+            vector<Channel*>channels;
+            for(int j=0;j<=n;j++)
+                channels.push_back(&all_channel[j][x]);
+
+            FinalGMW<n> *gmw=new FinalGMW<n>(&views[x],channels,open,x);
+            auto res=compute(x,views[x].inputs,gmw);
+            vector<boolean>output;
+            for(int i=0;i<(int)res.size();i++)
+                output.push_back(gmw->reveal(res[i]));
+            
+
+            // check output
+            if(it+1==REP){
+                for(int i=0;i<(int)output.size();i++)
+                    cout<<(int)output[i];
+                cout<<endl;
+            }
+            
+            delete gmw;
+        }
+
     }
 
     for(int i=1;i<=n;i++)
@@ -118,17 +124,16 @@ bool verify(){
 
     return true;
 }
-*/
 
 int main(int argc,char **argv){
 
     
-   /* if(verify()){
+   if(verify()){
         puts("Yes");
     }else{
         puts("No");
     }
-*/
+
     
 
     return 0;

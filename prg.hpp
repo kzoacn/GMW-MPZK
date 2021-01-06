@@ -41,7 +41,13 @@ class PRG { public:
             cur++;
             left-=Hash::DIGEST_SIZE;
         }
-	} 
+	}
+
+    unsigned int rand(){
+        unsigned int res;
+        random_data(&res,sizeof(res));
+        return res;
+    } 
 };
 
 #endif// PRP_H__

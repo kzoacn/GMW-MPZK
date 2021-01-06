@@ -8,6 +8,7 @@
 #include <string.h>
 #include <string>
 #include <vector> 
+#include "hash.hpp"
 using std::string;
 using std::vector; 
 
@@ -123,13 +124,13 @@ class RecIO { public:
 		fflush(stream);
 	}
 
- 
+	Hash send_hash,recv_hash;
     
 	void send_data(const void * data, int len) {
         
 		for(int i=0;i<len;i++)
 			send_rec.push_back(((char*)data)[i]);
-        //send_hash.put(data,len);
+        send_hash.put(data,len);
 		
         counter += len;
 		int sent = 0;
@@ -159,7 +160,7 @@ class RecIO { public:
 
 		for(int i=0;i<len;i++)
 			recv_rec.push_back(((char*)data)[i]);
-        //recv_hash.put(data,len);
+        recv_hash.put(data,len);
 	}
 }; 
  

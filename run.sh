@@ -8,4 +8,4 @@ sleep 0.1
 sleep 0.1
 ./prover 5 12345 &
 sleep 0.1
-./prover 6 12345 &
+time ./prover 6 12345 &
