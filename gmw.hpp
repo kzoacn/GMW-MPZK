@@ -236,6 +236,7 @@ public:
             c.val=a.val^1;
         else
             c.val=a.val;
+       xor_cnt++;
     }
     void oand(Bool &c,const Bool &a,const Bool &b){
         and_cnt++;

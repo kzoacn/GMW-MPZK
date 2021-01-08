@@ -23,11 +23,11 @@ public:
 
 	void send(int id,const bool *data0, const bool *data1,int length) {
 
-
+		/*
 		io->send_data(id,data0,length);
 		io->send_data(id,data1,length);
 
-		return ;
+		return ;*/
 
 		BigInt a;
 		Point A, AaInv;
@@ -65,7 +65,7 @@ public:
 
 	void recv(int id,bool *data, bool *b,int length) {
 
-		bool tmp0[2],tmp1[2];
+		/*bool tmp0[2],tmp1[2];
 		io->recv_data(id,tmp0,length);
 		io->recv_data(id,tmp1,length);
 		for(int i=0;i<length;i++)
@@ -74,7 +74,7 @@ public:
 			else
 				data[i]=tmp0[i];
 
-		return ;
+		return ;*/
 
 		BigInt * bb = new BigInt[length];
 		Point * B = new Point[length],

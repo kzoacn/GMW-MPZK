@@ -65,6 +65,9 @@ int main(int argc,char **argv){
         }
         gmw->view.inputs=inputs;
         auto res=compute(party,inputs,gmw);
+
+        cout<<"and num : "<<gmw->and_cnt<<" xor/inv num: "<<gmw->xor_cnt<<endl;
+
         vector<boolean>output;
         for(int i=0;i<(int)res.size();i++)
             output.push_back(gmw->reveal(res[i]));
