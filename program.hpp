@@ -12,7 +12,8 @@ using namespace std;
 //#define HASH
 
 //#define YAO
- 
+
+#define AVG
 
 vector<Bool> adder(vector<Bool> a,vector<Bool> b,MPC *gmw){
     vector<Bool>res;
@@ -148,7 +149,9 @@ vector<Bool> compute(int party,vector<boolean> inputs,MPC *gmw){
 	ans.push_back(equal(res,output,gmw));
 
     return ans;
-#else
+#endif
+
+#ifdef YAO
 	const char output1[]="1101101001010110100110001011111000010111101110011011010001101001011000100011001101010111100110010111011110011111101111101100101010001100111001011101010010010001110000001101001001100010010000111011101011111110111110011110101000011000001101111010100111011000";
 	const char output2[]="1000100011010011010100110101000010110001100001000110111011001100001101001101011011010000010010100001000000110101010110101101100110101000111000010010010100101110100111010111111100111010111100010011000000011000011010110100111110101111000110101001100000110010";
 	vector<Bool>res,in;
@@ -204,6 +207,42 @@ vector<Bool> compute(int party,vector<boolean> inputs,MPC *gmw){
     ans.push_back(bit);
 
 	return ans;
+
+#endif
+
+
+#ifdef AVG
+	const char output[]="00100110000000000000000000000000";
+
+
+	vector<Bool> ans;
+    vector<Bool>s; 
+
+    s.resize(inputs.size());
+    for(int i=0;i<s.size();i++)
+        gmw->set(s[i],0,0);
+
+
+	vector<Bool>res,in; 
+	for(int k=0;k<n/3;k++){ 
+		in.resize(inputs.size());
+		for(int i=0;i<inputs.size();i++)
+			gmw->set(in[i],0,0);
+		for(int j=3*k+1;j<=3*k+3;j++){
+			Bool tmp;
+			for(int i=0;i<inputs.size();i++){
+				gmw->set(tmp,inputs[i],j);
+				gmw->oxor(in[i],in[i],tmp);
+			}
+		}
+		s=adder(s,in,gmw);
+	}
+
+	//ans=s;
+	ans.push_back(equal(s,output,gmw));
+
+	return ans;
+
 
 #endif
 
